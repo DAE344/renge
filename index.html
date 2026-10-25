@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>你的骨子里藏着哪种人格？</title>
+<style>
+  :root{
+    --bg:#F7F4F0;
+    --card:#FFFFFF;
+    --ink:#4A4843;
+    --ink-2:#8C877F;
+    --line:#EDE7DF;
+    --pink:#D3A79B;
+    --blue:#93A3B0;
+    --green:#A5B79C;
+    --pink-bg:#FBF5F2;
+    --track:#F2EDE6;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:480px;
+    margin:0 auto;
+    padding:0 20px calc(40px + env(safe-area-inset-bottom));
+    min-height:100vh;
+  }
+  .screen{display:none;}
+  .screen.show{display:block;animation:fade .3s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  /* ---------- 按钮 ---------- */
+  .btn{
+    display:block;width:100%;border:none;border-radius:16px;
+    font-size:16px;font-family:inherit;font-weight:500;
+    padding:16px;cursor:pointer;transition:transform .15s ease,background .2s ease;
+    letter-spacing:.5px;
+  }
+  .main-btn{background:#6E6A63;color:#fff;margin-top:28px;}
+  .main-btn:disabled{background:#D9D3CB;color:#fff;cursor:default;}
+  .main-btn:active:not(:disabled){transform:scale(.985);}
+  .ghost-btn{background:#fff;color:var(--ink);border:1px solid var(--line);margin-top:14px;}
+  .ghost-btn:active{transform:scale(.985);}
+
+  /* ---------- 封面 ---------- */
+  #cover{padding-top:76px;}
+  .cover-kicker{
+    font-size:12px;color:var(--ink-2);letter-spacing:3px;margin:0 0 22px;
+  }
+  #cover h1{
+    font-size:32px;line-height:1.42;margin:0 0 24px;font-weight:600;letter-spacing:1px;
+  }
+  #cover h1 span{
+    background:linear-gradient(transparent 62%, #F0E2DC 62%);
+  }
+  .cover-desc{
+    font-size:15px;color:var(--ink-2);line-height:2.05;margin:0;
+  }
+  .cover-note{
+    text-align:center;font-size:12px;color:#B5AFA6;margin:22px 0 0;letter-spacing:1px;
+  }
+
+  /* ---------- 答题 ---------- */
+  .quiz-head{display:flex;align-items:center;gap:12px;padding:30px 0 22px;}
+  .progress{flex:1;height:5px;background:#E9E3DA;border-radius:99px;overflow:hidden;}
+  .progress-bar{height:100%;width:0;background:var(--pink);border-radius:99px;transition:width .3s ease;}
+  .counter{font-size:12px;color:var(--ink-2);white-space:nowrap;letter-spacing:.5px;}
+
+  .q-index{font-size:12px;color:var(--pink);letter-spacing:2px;margin:0 0 10px;font-weight:600;}
+  .q-text{font-size:20px;line-height:1.6;margin:0 0 26px;font-weight:600;letter-spacing:.3px;}
+
+  .opt{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    background:#fff;border:1.5px solid var(--line);border-radius:16px;
+    padding:15px 16px;margin-bottom:11px;font-family:inherit;font-size:15px;
+    color:var(--ink);cursor:pointer;transition:all .18s ease;line-height:1.55;
+  }
+  .opt-key{
+    flex:0 0 24px;height:24px;border-radius:9px;background:var(--track);color:var(--ink-2);
+    font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:600;
+    transition:all .18s ease;
+  }
+  .opt.sel{border-color:var(--pink);background:var(--pink-bg);}
+  .opt.sel .opt-key{background:var(--pink);color:#fff;}
+
+  /* ---------- 结果 ---------- */
+  .res-head{text-align:center;padding:46px 0 22px;}
+  .res-kicker{font-size:12px;color:var(--ink-2);letter-spacing:3px;margin:0 0 14px;}
+  .res-name{font-size:30px;margin:0 0 12px;font-weight:600;letter-spacing:1px;}
+  .res-tag{font-size:14px;color:var(--ink-2);margin:0 0 26px;line-height:1.7;}
+  .res-match{display:inline-flex;align-items:baseline;gap:3px;}
+  #resPercent{font-size:54px;font-weight:600;color:var(--pink);line-height:1;letter-spacing:-2px;}
+  .res-match small{font-size:20px;color:var(--pink);}
+  .res-match em{font-size:12px;color:var(--ink-2);font-style:normal;margin-left:8px;letter-spacing:1px;}
+
+  .bars{background:#fff;border-radius:20px;padding:20px 20px 18px;margin:6px 0 14px;}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:13px;}
+  .bar-row:last-child{margin-bottom:0;}
+  .bar-name{font-size:13px;width:34px;color:var(--ink-2);flex:0 0 34px;}
+  .bar-track{flex:1;height:8px;background:var(--track);border-radius:99px;overflow:hidden;}
+  .bar-track i{display:block;height:100%;border-radius:99px;}
+  .bar-val{font-size:12px;color:var(--ink-2);width:36px;text-align:right;flex:0 0 36px;}
+
+  .res-card{background:#fff;border-radius:20px;padding:18px 20px;margin-bottom:12px;}
+  .res-card h3{margin:0 0 8px;font-size:15px;font-weight:600;letter-spacing:.5px;}
+  .res-card p{margin:0;font-size:14.5px;line-height:1.9;color:#5F5B54;}
+
+  .res-also{
+    text-align:center;font-size:13px;color:var(--ink-2);
+    margin:18px 0 6px;line-height:1.8;
+  }
+  .footer-note{
+    text-align:center;font-size:12px;color:#B5AFA6;margin:24px 0 0;letter-spacing:1px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ========== 封面 ========== -->
+  <section id="cover" class="screen show">
+    <p class="cover-kicker">15 题 · 约 1 分钟</p>
+    <h1>你的骨子里<br>藏着<span>哪种人格</span>？</h1>
+    <p class="cover-desc">
+      有些人天生柔软，见不得别人为难；<br>
+      有些人自带锋芒，遇事从不退让；<br>
+      还有些人只想安静躺平，谁也别来烦。<br>
+      回答 15 道小题，看看你骨子里是谁。
+    </p>
+    <button class="btn main-btn" id="startBtn">开始测试</button>
+    <p class="cover-note">凭直觉选，没有对错</p>
+  </section>
+
+  <!-- ========== 答题 ========== -->
+  <section id="quiz" class="screen">
+    <div class="quiz-head">
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <span class="counter" id="counter">1 / 15</span>
+    </div>
+    <p class="q-index" id="qIndex">Q1</p>
+    <h2 class="q-text" id="qText"></h2>
+    <div id="opts"></div>
+    <button class="btn main-btn" id="nextBtn" disabled>下一题</button>
+  </section>
+
+  <!-- ========== 结果 ========== -->
+  <section id="result" class="screen">
+    <div class="res-head">
+      <p class="res-kicker">你 的 骨 子 里 是</p>
+      <h2 class="res-name" id="resName"></h2>
+      <p class="res-tag" id="resTag"></p>
+      <div class="res-match">
+        <span id="resPercent">0</span><small>%</small><em>匹配度</em>
+      </div>
+    </div>
+
+    <div class="bars" id="bars"></div>
+
+    <div class="res-card">
+      <h3>✨ 人格亮点</h3>
+      <p id="resHighlight"></p>
+    </div>
+    <div class="res-card">
+      <h3>🏡 适合待在什么环境</h3>
+      <p id="resEnv"></p>
+    </div>
+    <div class="res-card">
+      <h3>🌧 你的小缺点</h3>
+      <p id="resFlaw"></p>
+    </div>
+
+    <p class="res-also" id="resAlso"></p>
+    <button class="btn ghost-btn" id="retryBtn">重新测试</button>
+    <p class="footer-note">截图分享给朋友，看看他们是什么型 🌿</p>
+  </section>
+
+</div>
+
+<script>
+/* ================= 题库 ================= */
+/* 每个选项 s = [温柔, 狼戾, 佛系] 得分 */
+const QUESTIONS = [
+  { q: "别人误解你的时候，你的第一反应通常是？", opts: [
+    { t: "心里有点委屈，但还是先好好解释", s: [2.5, 0, 0.5] },
+    { t: "直接怼回去，凭什么冤枉我", s: [0, 2.5, 0.5] },
+    { t: "算了，TA 爱怎么想就怎么想", s: [0.5, 0, 2.5] },
+    { t: "先冷静看清情况，再决定要不要解释", s: [0.5, 1.5, 1] }
+  ]},
+  { q: "看到朋友被欺负，你会？", opts: [
+    { t: "第一时间冲上去护着 TA", s: [1.5, 1.5, 0] },
+    { t: "立刻站出来，把话说清楚", s: [0, 2.5, 0.5] },
+    { t: "先陪在 TA 身边，等 TA 情绪稳定", s: [2.5, 0, 0.5] },
+    { t: "帮 TA 分析局势，让 TA 自己决定", s: [1, 0, 2] }
+  ]},
+  { q: "突然被加塞一个紧急任务，你的状态是？", opts: [
+    { t: "深吸一口气，排好优先级默默做完", s: [1, 1, 1] },
+    { t: "一边吐槽一边高效搞定", s: [0, 2.5, 0.5] },
+    { t: "先接下来，实在不行再说", s: [2, 0, 1] },
+    { t: "先不急，反正最后都能交上", s: [0, 0, 3] }
+  ]},
+  { q: "你的朋友圈子更倾向于？", opts: [
+    { t: "有几个可以掏心掏肺的好朋友", s: [2.5, 0, 0.5] },
+    { t: "各个领域都有能合作的人", s: [0, 2.5, 0.5] },
+    { t: "佛系维系，来去随缘", s: [0.5, 0, 2.5] },
+    { t: "一两个知根知底的就够了", s: [0.5, 1.5, 1] }
+  ]},
+  { q: "和别人发生冲突时，你通常？", opts: [
+    { t: "先低头缓和气氛，不想闹僵", s: [2.5, 0, 0.5] },
+    { t: "正面刚，谁对谁错说清楚", s: [0, 2.5, 0.5] },
+    { t: "冷处理，不想浪费情绪", s: [0, 1, 2] },
+    { t: "各退一步，能过就过", s: [1, 0, 2] }
+  ]},
+  { q: "在陌生场合，你更容易？", opts: [
+    { t: "主动搭话，先认识几个人", s: [0.5, 2.5, 0] },
+    { t: "安静观察，等别人来找我", s: [1, 0, 2] },
+    { t: "找个角落待着，自得其乐", s: [0, 0, 3] },
+    { t: "微笑回应，谁聊都能聊两句", s: [2.5, 0, 0.5] }
+  ]},
+  { q: "你对未来的规划方式是？", opts: [
+    { t: "有清晰的目标，一步一步推进", s: [0, 2.5, 0.5] },
+    { t: "大方向有，细节随机应变", s: [0.5, 2, 0.5] },
+    { t: "不太规划，走一步看一步", s: [0, 0, 3] },
+    { t: "更在意当下过得舒不舒服", s: [2, 0, 1] }
+  ]},
+  { q: "面对压力特别大的时期，你会？", opts: [
+    { t: "硬扛，扛过去就好了", s: [0, 3, 0] },
+    { t: "找人聊聊，把情绪说出来", s: [2.5, 0, 0.5] },
+    { t: "该吃吃该睡睡，急也没用", s: [0, 0, 3] },
+    { t: "短暂摆烂，然后满血复活", s: [0.5, 1.5, 1] }
+  ]},
+  { q: "你理想中的周末是？", opts: [
+    { t: "一个人待着，睡到自然醒", s: [0, 0, 3] },
+    { t: "和朋友约饭，聊到很晚", s: [2.5, 0.5, 0] },
+    { t: "去做一件有挑战的事", s: [0, 2.5, 0.5] },
+    { t: "在家做点自己喜欢的小事", s: [1.5, 0, 1.5] }
+  ]},
+  { q: "做重要决定时，你更相信？", opts: [
+    { t: "自己的判断和直觉", s: [0, 2.5, 0.5] },
+    { t: "身边人的建议和感受", s: [2.5, 0, 0.5] },
+    { t: "数据、事实和可行性", s: [0.5, 2, 0.5] },
+    { t: "顺其自然，到时候就知道了", s: [0, 0, 3] }
+  ]},
+  { q: "遇到两难选择时，你会？", opts: [
+    { t: "选那个不伤害别人的", s: [2.5, 0, 0.5] },
+    { t: "选对自己最有利的", s: [0, 2.5, 0.5] },
+    { t: "拖到最后一刻再决定", s: [0, 0, 3] },
+    { t: "抓阄，或者直接问别人", s: [1, 0, 2] }
+  ]},
+  { q: "别人建议你改变主意时，你会？", opts: [
+    { t: "认真听完，觉得有道理就改", s: [2.5, 0, 0.5] },
+    { t: "表面点头，心里照旧", s: [0.5, 2, 0.5] },
+    { t: "看对方是谁，值得就听", s: [0, 1.5, 1.5] },
+    { t: "本来也没多想坚持什么", s: [0.5, 0, 2.5] }
+  ]},
+  { q: "你觉得自己的底线是？", opts: [
+    { t: "不能伤害无辜的人", s: [2.5, 0, 0.5] },
+    { t: "不能被别人踩在头上", s: [0, 3, 0] },
+    { t: "好像也没什么底线，随遇而安", s: [0, 0, 3] },
+    { t: "别碰我的人，其他都好说", s: [1.5, 1.5, 0] }
+  ]},
+  { q: "你最怕别人看到你哪一面？", opts: [
+    { t: "其实我也会有脾气", s: [0.5, 2.5, 0] },
+    { t: "其实我也有撑不住的时候", s: [2.5, 0, 0.5] },
+    { t: "其实我挺在意的，只是不说", s: [2, 0.5, 0.5] },
+    { t: "其实我对什么都无所谓", s: [0, 0.5, 2.5] }
+  ]},
+  { q: "你希望别人怎么评价你？", opts: [
+    { t: "这个人很靠谱，能扛事", s: [0.5, 2.5, 0] },
+    { t: "这个人很温柔，很好相处", s: [2.5, 0, 0.5] },
+    { t: "这个人很通透，不内耗", s: [0, 0, 3] },
+    { t: "这个人有分寸，好沟通", s: [1.5, 0.5, 1] }
+  ]}
+];
+
+/* ================= 10 种人格原型 ================= */
+const TYPES = [
+  {
+    name: "棉花糖温柔型", w: 0.66, l: 0.10, f: 0.24,
+    tag: "软到骨子里，谁靠近都想卸下防备",
+    highlight: "共情力天花板。别人皱一下眉你都能察觉到，你身上有种让人放松的磁场，跟你待着不用装、不用演。你是朋友圈里的充电桩，谁崩了都想找你聊两句。",
+    env: "有温度的小团队，需要长期沟通和陪伴的岗位——用户运营、教育、内容创作这类。人际关系简单一点，你会发光。",
+    flaw: "太会体谅别人，容易把自己的委屈咽下去。拒绝这件事，对你来说比加班还难。"
+  },
+  {
+    name: "护崽温柔型", w: 0.50, l: 0.36, f: 0.14,
+    tag: "对你好是真的，别惹我也是真的",
+    highlight: "你的温柔是有对象的。对外人可以礼貌疏离，对自己人却掏心掏肺、护得死死的。平时不吭声，关键时刻第一个站到前面。",
+    env: "需要信任感和默契的小团队。人少事清、彼此托底的地方，你能待很久。",
+    flaw: "护短护得有点上头，一旦被触到在意的人，容易当场炸毛，事后自己又后悔。"
+  },
+  {
+    name: "淡人温柔型", w: 0.42, l: 0.08, f: 0.50,
+    tag: "温柔，但和你保持一米距离",
+    highlight: "你有种很舒服的分寸感——不打听、不打扰、不评判。对人温和，但不轻易交心；看着好说话，其实心里有杆秤。",
+    env: "边界清晰、节奏不吵的工作。能独立完成的部分越多越好，你讨厌无意义的社交消耗。",
+    flaw: "太「淡」容易被误会成冷淡。别人想靠近你，常常找不到门。"
+  },
+  {
+    name: "战狼型", w: 0.20, l: 0.70, f: 0.10,
+    tag: "目标写在脸上，执行力按小时算",
+    highlight: "你骨子里有股狠劲。定了目标就往前冲，不需要别人推。抗压能力强，越难的事你越想试——别人还在讨论，你已经做完了。",
+    env: "结果导向、规则透明、能打硬仗的地方。越有挑战，你越有状态。",
+    flaw: "对自己太狠，容易把身体和情绪一起透支。偶尔显得不太近人情。"
+  },
+  {
+    name: "孤狼型", w: 0.08, l: 0.55, f: 0.37,
+    tag: "一个人也能把日子过得很好",
+    highlight: "独立到让人羡慕。你不需要靠热闹证明自己，独处是你的充电方式。想清楚了才行动，不随大流，也不爱解释。",
+    env: "自由度高、少开无效会议的地方。给你空间，你能交出超预期的东西。",
+    flaw: "习惯自己扛，不太主动求助。容易把「我可以」变成「我只能」。"
+  },
+  {
+    name: "带刺玫瑰型", w: 0.32, l: 0.48, f: 0.20,
+    tag: "有锋芒的善良，才最难得",
+    highlight: "你不是软柿子，也不是冷血的人。该温柔的时候特别温柔，该翻脸的时候一秒到位。你分得清谁值得，谁不值得。",
+    env: "规则清楚、公平讲理的地方。最怕的是让你受了委屈，还要你讲和气。",
+    flaw: "生气的时候说话挺伤人，说完自己心里也堵得慌。"
+  },
+  {
+    name: "摆烂佛系型", w: 0.20, l: 0.05, f: 0.75,
+    tag: "内耗？不存在的",
+    highlight: "情绪稳定得可怕。别人急得跳脚，你还能慢悠悠喝口奶茶。你看得开、放得下，很少被外界情绪拖着走，是朋友圈的定心丸。",
+    env: "节奏不快、不卷、不搞突然袭击的地方。你会待得非常舒服。",
+    flaw: "拖延是真的。机会来的时候，你可能还躺着。偶尔需要有人推你一把。"
+  },
+  {
+    name: "冷面佛系型", w: 0.08, l: 0.36, f: 0.56,
+    tag: "都看懂了，但我懒得参与",
+    highlight: "你不是没脾气，是懒得浪费情绪。很多事情你一眼就看明白，然后选择沉默。心理边界极强，别人很难影响到你。",
+    env: "可以独立作业、不用频繁社交的岗位。你会高效得让人惊讶。",
+    flaw: "容易显得高冷难接近。在乎你的人，有时会摸不着头脑。"
+  },
+  {
+    name: "清醒通透型", w: 0.38, l: 0.20, f: 0.42,
+    tag: "既照顾别人，也不委屈自己",
+    highlight: "你身上有种难得的平衡感。该温和时温和，该抽身时抽身，很少钻牛角尖。不争不抢，但心里什么都清楚。",
+    env: "有人情味、又有边界感的地方。氛围松弛的小团队、弹性大的工作最适合你。",
+    flaw: "想得太多，容易在「要不要开口」这件事上耗掉半天。"
+  },
+  {
+    name: "万能均衡型", w: 0.33, l: 0.33, f: 0.34,
+    tag: "什么场合都能接住，就是说不清自己是谁",
+    highlight: "适应力超强。在热闹里能聊，在安静里能待；遇到事能扛，遇到人能哄。你像水一样，什么容器都能装。",
+    env: "变化多、需要跟各种人打交道的岗位。你比谁都吃得开。",
+    flaw: "太会适应别人，反而容易不知道自己要什么。"
+  }
+];
+
+/* ================= 逻辑 ================= */
+const $ = id => document.getElementById(id);
+let current = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('show'));
+  $(id).classList.add('show');
+  window.scrollTo(0, 0);
+}
+
+function renderQuestion(i) {
+  const q = QUESTIONS[i];
+  $('qIndex').textContent = 'Q' + (i + 1);
+  $('qText').textContent = q.q;
+  $('counter').textContent = (i + 1) + ' / ' + QUESTIONS.length;
+  $('progressBar').style.width = ((i + 1) / QUESTIONS.length * 100) + '%';
+
+  const optsEl = $('opts');
+  optsEl.innerHTML = '';
+  q.opts.forEach((o, idx) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'opt' + (answers[i] === idx ? ' sel' : '');
+    b.innerHTML = '<span class="opt-key">' + 'ABCD'[idx] + '</span><span class="opt-text">' + o.t + '</span>';
+    b.addEventListener('click', () => selectOption(i, idx));
+    optsEl.appendChild(b);
+  });
+
+  const nextBtn = $('nextBtn');
+  nextBtn.disabled = answers[i] === null;
+  nextBtn.textContent = (i === QUESTIONS.length - 1) ? '看结果' : '下一题';
+}
+
+function selectOption(qi, oi) {
+  answers[qi] = oi;
+  const kids = $('opts').children;
+  for (let k = 0; k < kids.length; k++) {
+    kids[k].classList.toggle('sel', k === oi);
+  }
+  $('nextBtn').disabled = false;
+}
+
+$('nextBtn').addEventListener('click', () => {
+  if (current < QUESTIONS.length - 1) {
+    current++;
+    renderQuestion(current);
+    window.scrollTo(0, 0);
+  } else {
+    showResult();
+  }
+});
+
+function showResult() {
+  let w = 0, l = 0, f = 0;
+  answers.forEach((ai, qi) => {
+    const s = QUESTIONS[qi].opts[ai].s;
+    w += s[0]; l += s[1]; f += s[2];
+  });
+  const total = w + l + f || 1;
+  const p = { w: w / total, l: l / total, f: f / total };
+
+  const ranked = TYPES.map(t => ({
+    t,
+    d: Math.sqrt(
+      Math.pow(p.w - t.w, 2) +
+      Math.pow(p.l - t.l, 2) +
+      Math.pow(p.f - t.f, 2)
+    )
+  })).sort((a, b) => a.d - b.d);
+
+  const best = ranked[0].t;
+  const second = ranked[1].t;
+  const match = Math.round(Math.max(62, Math.min(98, 98 - ranked[0].d * 58)));
+
+  $('resName').textContent = best.name;
+  $('resTag').textContent = best.tag;
+  $('resPercent').textContent = match;
+  $('resHighlight').textContent = best.highlight;
+  $('resEnv').textContent = best.env;
+  $('resFlaw').textContent = best.flaw;
+
+  const barsData = [
+    { name: '温柔', val: p.w, color: '#D3A79B' },
+    { name: '狼戾', val: p.l, color: '#93A3B0' },
+    { name: '佛系', val: p.f, color: '#A5B79C' }
+  ];
+  $('bars').innerHTML = barsData.map(b => {
+    const v = Math.round(b.val * 100);
+    return '<div class="bar-row">' +
+      '<span class="bar-name">' + b.name + '</span>' +
+      '<div class="bar-track"><i style="width:' + v + '%;background:' + b.color + '"></i></div>' +
+      '<span class="bar-val">' + v + '%</span>' +
+      '</div>';
+  }).join('');
+
+  $('resAlso').textContent = '你身上还有一点「' + second.name + '」的影子';
+  showScreen('result');
+}
+
+$('startBtn').addEventListener('click', () => {
+  current = 0;
+  answers = new Array(QUESTIONS.length).fill(null);
+  renderQuestion(0);
+  showScreen('quiz');
+});
+
+$('retryBtn').addEventListener('click', () => {
+  current = 0;
+  answers = new Array(QUESTIONS.length).fill(null);
+  renderQuestion(0);
+  showScreen('quiz');
+});
+</script>
+</body>
+</html>
